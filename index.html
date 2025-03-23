@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 核心脚本 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Romeo叶to金濛</title>
+
+   
+    <script>
+    // 动态生成 Favicon
+    function setEmojiFavicon(emoji) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 32;
+        canvas.height = 32;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFD93D'; // 背景颜色
+        ctx.fillRect(0, 0, 32, 32);
+        
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#333'; // 符号颜色
+        ctx.fillText(emoji, 16, 16);
+    
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = canvas.toDataURL();
+        document.head.appendChild(link);
+    }
+    
+    // 页面加载后设置
+    window.onload = () => setEmojiFavicon('🥥');
+    </script>
+
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffe9e9 0%, #ffd6d6 100%);
+            min-height: 150vh;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .glass-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            padding: 1.5rem 5%;
+            justify-content: space-between; /* 确保两侧分布 */
+            overflow: visible; /* 允许溢出显示 */
+        }
+
+        .logo {
+            font-size: 2.5rem;/*放大LOGO*/
+            transition:all 0.3s;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem; /* 减少间隙 */
+            align-items: center;
+            flex-shrink: 0; /* 禁止菜单收缩 */
+            padding-left: 2rem; /* 增加左侧间距 *
+        }
+
+        .nav-item {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            transition: all 0.3s;
+            text-decoration: none !important; /* 强制去除下划线 */
+            backdrop-filter: blur(5px);
+            background: rgba(255,107,107,0.15);
+            
+            /* 新增高级效果 */
+            position: relative;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-item:hover {
+            background: rgba(255,107,107,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        /* 添加流动光效 */
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,0.2),
+                transparent
+            );
+            transform: rotate(15deg);
+            transition: 0.5s;
+        }
+
+        .nav-item:hover::after {
+            left: 150%;
+        }
+
+        /* 当前激活项样式 */
+        .nav-item.active {
+            background: rgba(255,107,107,0.4);
+            border-color: #ff6b6b;
+        }
+        @media (max-width: 1024px) {
+            .nav-menu {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch; /* 平滑滚动 */
+                padding-bottom: 5px;
+            }
+
+            /* WebKit 滚动条样式 (Chrome/Safari) */
+            .nav-menu::-webkit-scrollbar {
+                height: 3px; 
+            }
+            .nav-menu::-webkit-scrollbar-thumb {
+                background: rgba(255,107,107,0.5); 
+            }
+
+            /* Firefox 滚动条样式 (可选) */
+            .nav-menu {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255,107,107,0.5) transparent;
+            }
+        }
+        /* 手机端适配 */
+        @media (max-width: 768px) {
+            .logo { font-size: 2rem; }
+            .nav-menu { gap: 1rem; 
+                max-width: 65vw; /* 控制最大宽度 */
+            }
+            .nav-item {
+                font-size: 0.9rem;
+                padding: 0.6rem 1rem;
+                white-space: nowrap; /* 禁止文字换行 */
+                .nav-item {
+                box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            }
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 1.8rem; }
+            .nav-menu {
+                gap: 0.8rem;
+                max-width: 60vw;
+            }
+            .nav-item {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+        }
+        /* 主内容区 */
+        .hero {
+            padding-top: 80px;
+            text-align: center;
+        }
+        
+        /* 新增按钮容器样式（添加在现有.cta-container下方） */
+        .cta-container {
+            margin: 4rem 0;  /* 新增垂直间距 */
+            transform: translateY(30px); /* 额外下移效果 */
+        }
+
+        /* 动态标题 */
+        .animated-title {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeUp 1s ease-out;
+            margin: 2rem 0;
+        }
+
+        /* 图片样式 */
+        .main-image {
+            width: 250px;
+            height: 250px;
+            border: 4px solid white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            object-fit: cover;
+            margin: 4rem auto 2rem; /* 增加上边距 */
+            display: block;
+            position: relative;
+            top: 30px; /* 新增向下偏移 */
+            animation: float 3s ease-in-out infinite; /* 修改动画方向 */
+        }
+
+        /* 霓虹按钮 */
+        .neon-btn {
+            margin-top: 50px; /* 向下推挤按钮 */
+            padding: 1.2rem 2.5rem;
+            background: transparent;
+            border: 2px solid #ff6b6b;
+            border-radius: 30px;
+            color: #ff6b6b;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent, rgba(255,107,107,0.3), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+
+        .neon-btn:hover {
+            box-shadow: 0 0 20px rgba(255,107,107,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* 音乐控制 */
+        #music-control {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        /* 弹窗样式 */
+        .swal2-popup {
+            border-radius: 15px !important;
+            overflow: hidden;
+        }
+
+        /* 动画定义 */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0) translateX(0); /* 移除横向移动 */
+            }
+            50% { 
+                transform: translateY(-15px); /* 仅保留纵向移动 */
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .animated-title { font-size: 2rem; }
+            .main-image { width: 200px; height: 200px; }
+            .neon-btn { padding: 1rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="glass-nav">
+        <div class="logo">🥳 Welcome MK 🥳</div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">🍟</a>
+            <a href="#" class="nav-item">言寺</a>
+            <a href="#" class="nav-item">🍟</a>
+            <a href="#" class="nav-item">💌 留言板</a>
+        </div>
+    </nav>
+
+    <main class="hero">
+        <h1 class="animated-title">欢迎来到Romeo的空间</h1>
+        <h2 class="animated-title">M_King</h2>
+        <h3 class="animated-title">想到这是一个很有意义的事情</h3>
+        <h4 class="animated-title">所以写了这个网页</h4>
+        <h5 class="animated-title">点击下面的"开启惊喜"</h5>
+        <h6 class="animated-title">希望能给你带来惊喜</h6>
+        <h7 class="animated-title">打造你的Carnival Meng King</h7>
+        <img src="DT.webp" 
+             class="main-image"
+             alt="生日主角"
+             onerror="this.src='https://via.placeholder.com/250'">
+        
+        <div class="cta-container">
+            <button class="neon-btn" onclick="showCelebration()">开启惊喜</button>
+        </div>
+    </main>
+
+    <audio id="bgm" loop>
+        <source src="陶喆 - 二十二.mp3" type="audio/mpeg">
+        <source src="陶喆 - 二十二.ogg" type="audio/ogg">
+    </audio>
+    <div id="music-control" onclick="toggleMusic()">🎵</div>
+
+    <script>
+        // 音乐控制
+        const audio = document.getElementById('bgm');
+        let isFirstPlay = true;
+
+        // 自动播放处理
+        document.addEventListener('click', () => {
+            if(isFirstPlay) {
+                audio.play().catch(() => {
+                    Swal.fire('点击音乐图标开启背景音乐');
+                });
+                isFirstPlay = false;
+            }
+        });
+
+        function toggleMusic() {
+            const control = document.getElementById('music-control');
+            if(audio.paused) {
+                audio.play();
+                control.textContent = '🎵';
+            } else {
+                audio.pause();
+                control.textContent = '🔇';
+            }
+        }
+
+        // 高级烟花特效
+        function fireConfetti() {
+            // 基础粒子爆发
+            const defaults = {
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 },
+                scalar: 0.8,
+                ticks: 400,
+                gravity: 0.4,
+                drift: 0.2,
+                colors: ['#FFD700', '#FF69B4', '#00FFFF', '#7B68EE']
+            };
+
+            // 核心烟花组
+            confetti({
+                ...defaults,
+                angle: 90,
+                startVelocity: 45
+            });
+
+            // 左右对称烟花
+            confetti({
+                ...defaults,
+                angle: 60,
+                startVelocity: 45
+            });
+            confetti({
+                ...defaults,
+                angle: 120,
+                startVelocity: 45
+            });
+
+            // 基础烟花
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.7 },
+                colors: ['#FFD700', '#FF69B4', '#00FFFF'],
+                scalar: 0.8,
+                ticks: 300,
+                gravity: 0.5,
+                drift: 0.2
+            });
+
+            // 心形烟花
+            confetti({
+                particleCount: 80,
+                spread: 110,
+                shapes: ['heart'],
+                colors: ['#FF1493'],
+                scalar: 1.5,
+                gravity: 0.3,
+                startVelocity: 40,
+                origin: { y: 0.5 }
+            });
+
+            // 文字烟花
+            confetti({
+                particleCount: 50,
+                spread: 80,
+                shapes: ['text'],
+                shapeOptions: {
+                    text: {
+                        value: ['🎉','🎂','✨'],
+                        fontSize: 28
+                    }
+                },
+                scalar: 1.8,
+                gravity: 0.2,
+                origin: { y: 0.7 }
+            });
+
+            // 持续特效
+            const duration = 5000;
+            const interval = 100;
+            const end = Date.now() + 3000;
+            (function frame() {
+                confetti({
+                    ...defaults,
+                    particleCount: 20,
+                    angle: 60 + Math.random() * 60,
+                    origin: { 
+                        x: Math.random() - 0.2,
+                        y: Math.random() * 0.5 + 0.3
+                    }
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            (function frame() {
+                if (Date.now() > end) return;
+
+                // 随机位置烟花
+                confetti({
+                    particleCount: 15,
+                    angle: 60,
+                    spread: 55,
+                    origin: { 
+                        x: Math.random(),
+                        y: Math.random() * 0.5 + 0.3
+                    },
+                    colors: ['#'+(Math.random()*0xFFFFFF<<0).toString(16)],
+                    startVelocity: Math.random() * 30 + 20
+                });
+
+                // 物理效果烟花
+                confetti({
+                    particleCount: 10,
+                    angle: 90,
+                    spread: 80,
+                    origin: { x: 0.5 },
+                    colors: ['#FFD700'],
+                    ticks: 200,
+                    gravity: 0.1,
+                    scalar: {
+                        min: 0.8,
+                        max: 1.2
+                    },
+                    drift: Math.random() - 0.5
+                });
+
+                requestAnimationFrame(frame);
+            }());
+        }
+
+        // 生日弹窗
+        function showCelebration() {
+            //先触发烟花再显示弹窗
+            fireConfetti();
+            Swal.fire({
+                title: '🎉 祝你 19 岁生日快乐 🎉',
+                html: `
+                <div class="birthday-content">
+                    <img src="jm.jpg" width="530" height="530"
+                         class="birthday-image"
+                         onerror="this.src='https://via.placeholder.com/300'">
+                    <div class="greeting-text">
+                        <h3>预祝 超级巨星金濛 ⭐</h3>
+                        <h4>🎂 Happy 19th Birthday</h4>
+                        <p>🎵 尽早出个人同名唱片</p>
+                        <p>实现心中的每一个愿望 🦋</p>
+                        <p>🤜🤛 TO OUR IMMORTAL SOULS</p>
+                    </div>
+                </div>
+                `,
+                width: 700,
+                background: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'custom-popup',
+                    closeButton: 'close-btn'
+                },
+                didOpen: () => {
+                    document.querySelector('.birthday-image').style.animation = 'float 3s infinite';
+                    // 增加二次触发
+                    setTimeout(fireConfetti, 800);
+                    setTimeout(fireConfetti, 1500);
+                    // 移动端优化
+                    const isMobile = /Android|webOS|iPhone/i.test(navigator.userAgent);
+                    if(isMobile) {
+                        confetti.reset = () => {}; // 防止移动端卡顿
+                    }
+                    
+                    // 延迟触发保证动画流畅
+                    setTimeout(() => {
+                        fireConfetti();
+                        document.querySelector('.birthday-image').style.animation = 'float 3s infinite';
+                    }, 500);
+                }
+            });
+        }
+    </script>
+    <style>
+        /* 新增烟花相关动画 */
+        @keyframes sparkle {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+        
+        .confetti {
+            animation: sparkle 1s ease-out forwards;
+        }
+        
+        </style>
+</body>
+</html>
